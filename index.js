@@ -3,8 +3,10 @@ const fs = require('fs')
 const json2html = require('node-json2html');
 const prompt = require("prompt-sync")({ sigint: true });
 const open = require('open');
+const moment = require('moment');
 
-
+// config for libraries
+moment.suppressDeprecationWarnings = true;
 require('dotenv').config()
 
 const client = new TwitterApi({
@@ -29,7 +31,7 @@ function createHTML(username, users) {
 
     const fileRoute = `./reports/report-${username}.html`
 
-    fs.writeFile(fileRoute, html, async () => { 
+    fs.writeFile(fileRoute, html, async () => {
         console.log('HTML CREATED');
         await open(fileRoute)
     })
@@ -45,7 +47,7 @@ async function main() {
         const user = await client.v1.user({ screen_name: usernameToLook })
 
         console.log('---parsing---', user.name);
-        
+
         const following = await client.v2.following(user.id, { asPaginator: true })
 
         while (!following.done) {
@@ -59,7 +61,12 @@ async function main() {
         for (id of ids) {
             console.log('parsing user id...', id);
             const user = await client.v1.user({ user_id: id })
-            if (user.followers_count >= 300 && user.followers_count <= 2000) {
+            if (
+                user.followers_count >= 300 && 
+                user.followers_count <= 2000 && 
+                moment(user?.status?.created_at).diff(moment(), 'months') >= -1 
+                && user?.status?.lang === "en"
+            ) {
                 interestingUsers.push({ screen_name: user.screen_name, followers_count: user.followers_count })
             }
         }
