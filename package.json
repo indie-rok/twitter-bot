@@ -5,6 +5,9 @@
   "license": "MIT",
   "dependencies": {
     "dotenv": "^14.3.2",
+    "node-json2html": "^2.2.1",
+    "open": "^8.4.0",
+    "prompt-sync": "^4.2.0",
     "twitter-api-v2": "^1.9.1"
   }
 }
